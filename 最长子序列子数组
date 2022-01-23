@@ -1,0 +1,182 @@
+#### [300. 最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)
+
+难度中等2026
+
+给你一个整数数组 `nums` ，找到其中最长严格递增子序列的长度。
+
+子序列是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，`[3,6,2,7]` 是数组 `[0,3,1,6,2,2,7]` 的子序列。
+
+**示例 1：**
+
+```
+输入：nums = [10,9,2,5,3,7,101,18]
+输出：4
+解释：最长递增子序列是 [2,3,7,101]，因此长度为 4 。
+```
+
+思路：
+
+```
+ dp[i]代表以i为结尾的最长递增子序列的长度
+    //那么dp[i] = max(dp[j])+1  其中nums[j]<nums[i]  /每次都得往前扫描，复杂度为n^2，不是最优解
+```
+
+```
+public static int lengthOfLIS(int[] nums) {
+    int [] dp = new int[nums.length];
+    Arrays.fill(dp,1);
+    int max=0;
+    for(int i=0;i<nums.length;i++){
+        for(int j=0;j<i;j++){
+            if(nums[j]<nums[i]) {
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+        }
+        max=Math.max(max,dp[i]);
+    }
+    return max;
+}
+```
+
+#### [128. 最长连续序列](https://leetcode-cn.com/problems/longest-consecutive-sequence/)
+
+难度中等971
+
+给定一个未排序的整数数组 `nums` ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
+
+请你设计并实现时间复杂度为 `O(n)` 的算法解决此问题。
+
+思路： 遍历num，找数字向右，例如2，就找3，4，5，6，7，找到最大长度，那肯定放进map里找是最快的
+
+还有为了避免重复，3也找4567，4也找567，重复了，因此只从最左边的数字开始找，也就是说，2左边1不存在，就可以找
+
+3左边2存在，就不找了
+
+
+
+#### [1143. 最长公共子序列](https://leetcode-cn.com/problems/longest-common-subsequence/)
+
+难度中等749
+
+给定两个字符串 `text1` 和 `text2`，返回这两个字符串的最长 **公共子序列** 的长度。如果不存在 **公共子序列** ，返回 `0` 。
+
+一个字符串的 **子序列** 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
+
+- 例如，`"ace"` 是 `"abcde"` 的子序列，但 `"aec"` 不是 `"abcde"` 的子序列。
+
+两个字符串的 **公共子序列** 是这两个字符串所共同拥有的子序列。
+
+
+
+思路典型的二维dp
+
+dp[i][j 表示text1以i为结尾，text2以j为结尾的子串的最长公共子序列
+
+a s d f e                                                                                                 a s d f e    
+
+​       i            如果text1[i]==text1[j] 那么dp(i)(j)= dp[i-1][j-1+1                     i  如果不相等，dpij = max(dpi-1,j   dpij-1) 给它们一个匹配
+
+a s d e f                                                                                                 a s d e f
+
+​       j                                                                                                                    j
+
+***初始条件***dpnn    0-n-1
+
+dp0 j 表示text1第一个字符和text2的匹配情况 
+
+ a :  fdgafdf    则dp0j = 0 0 0 1111
+
+***递推方向***
+
+两次遍历从小到大就行 
+
+**算法复杂度** ：o m*n
+
+```java
+public int longestCommonSubsequence(String text1, String text2) {
+    if(text1==null||text2==null||text1.length()<1||text2.length()<1){
+        return 0;
+    }
+    int [][]dp =new int[text1.length()][text2.length()];
+    for(int j=0;j<text2.length();j++){ //初始化第一行
+        if(text1.charAt(0)==text2.charAt(j)){
+            for(;j<text2.length();j++){
+                dp[0][j]=1;
+            }
+            break;
+        }
+    }
+    for(int i=0;i<text1.length();i++){
+        if(text2.charAt(0)==text1.charAt(i)){
+            for(;i<text1.length();i++){
+                dp[i][0]=1;
+            }
+        }
+    }
+    //开始dp
+    for(int i=1;i<text1.length();i++){
+        for(int j=1;j<text2.length();j++){
+            if(text1.charAt(i)==text2.charAt(j)){
+                dp[i][j]=dp[i-1][j-1]+1;
+            }else {
+                dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]);
+            }
+        }
+    }
+    return dp[text1.length()-1][text2.length()-1];
+}
+```
+
+#### [718. 最长重复子数组](https://leetcode-cn.com/problems/maximum-length-of-repeated-subarray/)
+
+难度中等568
+
+给两个整数数组 `A` 和 `B` ，返回两个数组中公共的、长度最长的子数组的长度。
+
+ 这道题和 最长公共子序列很像，但是区别在于，公共子序列是代表者整体的,dpmn就代表串1长度为m的子序列和 串2长度为n的子序列的匹配情况
+
+而子字符串（子数组） 则是局部 ,dpmn就代表串1以m结尾的子串(必须包含这个)和 串1以n结尾的子串(必须包含这个)的匹配情况
+
+因此递推方程为 if nums[i]!=nums[j]  dpij ==0; else dpij = dp i-1 j-1 +1;
+
+**示例：**
+
+```
+输入：
+A: [1,2,3,2,1]
+B: [3,2,1,4,7]
+输出：3
+解释：
+长度最长的公共子数组是 [3, 2, 1] 。
+```
+
+```java
+public int findLength(int[] nums1, int[] nums2) {
+    if(nums1==null||nums2==null||nums1.length<1||nums2.length<1){
+        return 0;
+    }
+    int[][] dp =new int[nums1.length][nums2.length];
+    int max=0;
+    //初始化
+    for(int j=0;j<nums2.length;j++){
+        dp[0][j]=nums1[0]==nums2[j]?1:0;
+        max=Math.max(max,dp[0][j]);
+    }
+    for(int i=0;i<nums1.length;i++){
+        dp[i][0]=nums1[i]==nums2[0]?1:0;
+        max=Math.max(max,dp[i][0]);
+    }
+    //dp
+    for(int i=1;i<nums1.length;i++){
+        for(int j=1;j<=nums2.length;j++){
+            if(nums1[i]!=nums2[j]){
+                dp[i][j]=0;
+            }else {
+                dp[i][j]=dp[i-1][j-1]+1;
+            }
+            max=Math.max(max,dp[i][j]);
+        }
+    }
+    return max;
+}
+```
